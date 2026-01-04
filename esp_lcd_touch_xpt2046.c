@@ -15,18 +15,19 @@
 // for portMUX_TYPE
 #include <esp_lcd_touch.h>
 #include <memory.h>
+#include "esp_lcd_touch_xpt2046.h"
 
 #include "sdkconfig.h"
 
 static const char *TAG = "xpt2046";
 
-#ifdef CONFIG_XPT2046_INTERRUPT_MODE
+#if CONFIG_XPT2046_INTERRUPT_MODE
     #define XPT2046_PD0_BIT       (0x00)
 #else
     #define XPT2046_PD0_BIT       (0x01)
 #endif
 
-#ifdef CONFIG_XPT2046_VREF_ON_MODE
+#if CONFIG_XPT2046_VREF_ON_MODE
     #define XPT2046_PD1_BIT   (0x02)
 #else
     #define XPT2046_PD1_BIT   (0x00)
@@ -170,7 +171,7 @@ static esp_err_t xpt2046_read_data(esp_lcd_touch_handle_t tp)
     uint32_t x = 0, y = 0;
     uint8_t point_count = 0;
 
-#ifdef CONFIG_XPT2046_INTERRUPT_MODE
+#if CONFIG_XPT2046_INTERRUPT_MODE
     if (tp->config.int_gpio_num != GPIO_NUM_NC)
     {
         // Check the PENIRQ pin to see if there is a touch
@@ -311,7 +312,7 @@ static bool xpt2046_get_xy(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y,
 esp_err_t esp_lcd_touch_xpt2046_read_battery_level(const esp_lcd_touch_handle_t handle, float *output)
 {
     uint16_t level;
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // First read is to turn on the Vref, so it has extra time to stabilise before we read it for real
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, BATTERY, &level), TAG, "XPT2046 read error!");
 #endif
@@ -330,7 +331,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_battery_level(const esp_lcd_touch_handle_t 
     // adjust for ADC bit count
     *output /= 4096.0f;
 
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // Final read is to turn the Vref off
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, Z_VALUE_1, &level), TAG, "XPT2046 read error!");
 #endif
@@ -341,7 +342,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_battery_level(const esp_lcd_touch_handle_t 
 esp_err_t esp_lcd_touch_xpt2046_read_aux_level(const esp_lcd_touch_handle_t handle, float *output)
 {
     uint16_t level;
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // First read is to turn on the Vref, so it has extra time to stabilise before we read it for real
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, AUX_IN, &level), TAG, "XPT2046 read error!");
 #endif
@@ -357,7 +358,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_aux_level(const esp_lcd_touch_handle_t hand
     // adjust for ADC bit count
     *output /= 4096.0f;
 
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // Final read is to turn on the ADC and the Vref off
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, Z_VALUE_1, &level), TAG, "XPT2046 read error!");
 #endif
@@ -368,7 +369,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_aux_level(const esp_lcd_touch_handle_t hand
 esp_err_t esp_lcd_touch_xpt2046_read_temp0_level(const esp_lcd_touch_handle_t handle, float *output)
 {
     uint16_t temp0;
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // First read is to turn on the Vref, so it has extra time to stabilise before we read it for real
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, TEMP0, &temp0), TAG, "XPT2046 read error!");
 #endif
@@ -380,7 +381,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_temp0_level(const esp_lcd_touch_handle_t ha
     // Convert to temperature in degrees C
     *output = (XPT2046_TEMP0_COUNTS_AT_25C - *output) * (2.507 / 4096.0) / 0.0021 + 25.0;
 
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // Final read is to turn on the ADC and the Vref off
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, Z_VALUE_1, &temp0), TAG, "XPT2046 read error!");
 #endif
@@ -392,7 +393,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_temp1_level(const esp_lcd_touch_handle_t ha
 {
     uint16_t temp0;
     uint16_t temp1;
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // First read is to turn on the Vref, so it has extra time to stabilise before we read it for real
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, TEMP0, &temp0), TAG, "XPT2046 read error!");
 #endif
@@ -406,7 +407,7 @@ esp_err_t esp_lcd_touch_xpt2046_read_temp1_level(const esp_lcd_touch_handle_t ha
     *output = temp1 - temp0;
     *output = *output * 1000.0 * (2.507 / 4096.0) * 2.573 - 273.0;
 
-#ifndef CONFIG_XPT2046_VREF_ON_MODE
+#if !CONFIG_XPT2046_VREF_ON_MODE
     // Final read is to turn on the ADC and the Vref off
     ESP_RETURN_ON_ERROR(xpt2046_read_register(handle, Z_VALUE_1, &temp0), TAG, "XPT2046 read error!");
 #endif

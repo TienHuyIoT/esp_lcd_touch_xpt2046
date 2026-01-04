@@ -10,6 +10,12 @@
 #include "esp_lcd_touch.h"
 #include "esp_lcd_panel_io.h"
 
+#define CONFIG_XPT2046_Z_THRESHOLD              400
+#define CONFIG_XPT2046_INTERRUPT_MODE           1
+#define CONFIG_XPT2046_VREF_ON_MODE             1
+#define CONFIG_XPT2046_CONVERT_ADC_TO_COORDS    1
+#define CONFIG_XPT2046_ENABLE_LOCKING           1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
